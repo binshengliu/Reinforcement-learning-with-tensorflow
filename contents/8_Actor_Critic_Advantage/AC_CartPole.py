@@ -48,7 +48,7 @@ class Actor(object):
                 inputs=self.s,
                 units=20,    # number of hidden units
                 activation=tf.nn.relu,
-                kernel_initializer=tf.random_normal_initializer(0., .1),    # weights
+                kernel_initializer=tf.random_normal_initializer(0., .1, seed=42),    # weights
                 bias_initializer=tf.constant_initializer(0.1),  # biases
                 name='l1'
             )
@@ -57,7 +57,7 @@ class Actor(object):
                 inputs=l1,
                 units=n_actions,    # output units
                 activation=tf.nn.softmax,   # get action probabilities
-                kernel_initializer=tf.random_normal_initializer(0., .1),  # weights
+                kernel_initializer=tf.random_normal_initializer(0., .1, seed=42),  # weights
                 bias_initializer=tf.constant_initializer(0.1),  # biases
                 name='acts_prob'
             )
@@ -73,12 +73,15 @@ class Actor(object):
         s = s[np.newaxis, :]
         feed_dict = {self.s: s, self.a: a, self.td_error: td}
         _, exp_v = self.sess.run([self.train_op, self.exp_v], feed_dict)
+        print('cost', -exp_v)
         return exp_v
 
     def choose_action(self, s):
         s = s[np.newaxis, :]
         probs = self.sess.run(self.acts_prob, {self.s: s})   # get probabilities for all actions
-        return np.random.choice(np.arange(probs.shape[1]), p=probs.ravel())   # return a int
+        action = np.random.choice(np.arange(probs.shape[1]), p=probs.ravel())   # return a int
+        print(s, probs, action)
+        return action
 
 
 class Critic(object):
@@ -96,7 +99,7 @@ class Critic(object):
                 activation=tf.nn.relu,  # None
                 # have to be linear to make sure the convergence of actor.
                 # But linear approximator seems hardly learns the correct Q.
-                kernel_initializer=tf.random_normal_initializer(0., .1),  # weights
+                kernel_initializer=tf.random_normal_initializer(0., .1,seed=42),  # weights
                 bias_initializer=tf.constant_initializer(0.1),  # biases
                 name='l1'
             )
@@ -105,7 +108,7 @@ class Critic(object):
                 inputs=l1,
                 units=1,  # output units
                 activation=None,
-                kernel_initializer=tf.random_normal_initializer(0., .1),  # weights
+                kernel_initializer=tf.random_normal_initializer(0., .1,seed=42),  # weights
                 bias_initializer=tf.constant_initializer(0.1),  # biases
                 name='V'
             )
@@ -135,7 +138,7 @@ sess.run(tf.global_variables_initializer())
 if OUTPUT_GRAPH:
     tf.summary.FileWriter("logs/", sess.graph)
 
-for i_episode in range(MAX_EPISODE):
+for i_episode in range(2):
     s = env.reset()
     t = 0
     track_r = []
