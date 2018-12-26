@@ -53,11 +53,11 @@ class PolicyGradient:
             10,
             input_shape=(self.n_features, ),
             activation=tf.nn.tanh,
-            kernel_initializer=tf.random_normal_initializer(0, 0.3),
+            kernel_initializer=tf.random_normal_initializer(0, 0.3, seed=42),
             bias_initializer=tf.constant_initializer(0.1))(inputs)
         l2 = Dense(
             self.n_actions,
-            kernel_initializer=tf.random_normal_initializer(0, 0.3),
+            kernel_initializer=tf.random_normal_initializer(0, 0.3, seed=42),
             bias_initializer=tf.constant_initializer(0.1))(l1)
 
         reward = Input(shape=(1, ))
